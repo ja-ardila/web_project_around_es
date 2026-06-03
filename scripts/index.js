@@ -1,4 +1,4 @@
-let initialCards = [
+const initialCards = [
   {
     name: "Valle de Yosemite",
     link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg",
@@ -25,16 +25,12 @@ let initialCards = [
   },
 ];
 
-initialCards.forEach(function (card) {
-  console.log(card.name);
-});
-
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 
 const editPopup = document.querySelector("#edit-popup");
 const editButton = document.querySelector(".profile__edit-button");
-const closeEditPopup = editPopup.querySelector(".popup__close");
+const editPopupCloseButton = editPopup.querySelector(".popup__close");
 
 const editForm = editPopup.querySelector(".popup__form");
 const editNameInput = editForm.querySelector(".popup__input_type_name");
@@ -54,7 +50,7 @@ editButton.addEventListener("click", () => {
   handleOpenEditModal(editPopup);
 });
 
-closeEditPopup.addEventListener("click", () => {
+editPopupCloseButton.addEventListener("click", () => {
   closeModal(editPopup);
 });
 
@@ -74,8 +70,10 @@ function handleProfileFormSubmit(evt) {
 
   profileTitle.textContent = editNameInput.value;
   profileDescription.textContent = editDescriptionInput.value;
-
-  evt.target.reset();
 }
 
 editForm.addEventListener("submit", handleProfileFormSubmit);
+
+initialCards.forEach(function (card) {
+  console.log(card.name);
+});
