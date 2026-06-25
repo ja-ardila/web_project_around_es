@@ -1,3 +1,5 @@
+import { setEventListeners, resetValidation } from "./validate.js";
+
 const initialCards = [
   {
     name: "Valle de Yosemite",
@@ -47,7 +49,6 @@ const editNameInput = editForm.querySelector(".popup__input_type_name");
 const editDescriptionInput = editForm.querySelector(
   ".popup__input_type_description",
 );
-const editSubmitButton = editForm.querySelector(".popup__button");
 
 // Modal para agregar nuevas tarjetas.
 const newCardPopup = document.querySelector("#new-card-popup");
@@ -57,7 +58,6 @@ const newCardPopupCloseButton = newCardPopup.querySelector(".popup__close");
 const addForm = newCardPopup.querySelector(".popup__form");
 const addNameInput = addForm.querySelector(".popup__input_type_card-name");
 const addLinkInput = addForm.querySelector(".popup__input_type_url");
-const addSubmitButton = addForm.querySelector(".popup__button");
 
 // Modal de vista ampliada de imagen.
 const imagePopup = document.querySelector("#image-popup");
@@ -68,14 +68,31 @@ const popupCaption = imagePopup.querySelector(".popup__caption");
 // Todos los modales
 const popups = document.querySelectorAll(".popup");
 
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inputErrorClass: "popup__input_type_error",
+  inactiveButtonClass: "popup__button_disabled",
+};
+
 function openModal(modal) {
   modal.classList.add("popup_is-opened");
   document.addEventListener("keydown", handleEscClose);
 }
 
+function resetPopupValidation(modal) {
+  const formElement = modal.querySelector(".popup__form");
+
+  if (formElement) {
+    resetValidation(formElement, validationConfig);
+  }
+}
+
 function closeModal(modal) {
   modal.classList.remove("popup_is-opened");
   document.removeEventListener("keydown", handleEscClose);
+  resetPopupValidation(modal);
 }
 
 function handleOverlayClick(evt) {
@@ -94,98 +111,7 @@ function handleEscClose(evt) {
   }
 }
 
-const validationConfig = {
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inputErrorClass: "popup__input_type_error",
-  inactiveButtonClass: "popup__button_disabled",
-};
-
-function showErrorMessage(formElement, inputElement) {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-
-  inputElement.classList.add(validationConfig.inputErrorClass);
-  errorElement.textContent = inputElement.validationMessage;
-}
-
-function hideErrorMessage(formElement, inputElement) {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-
-  inputElement.classList.remove(validationConfig.inputErrorClass);
-  errorElement.textContent = "";
-}
-
-function checkInputValidity(formElement, inputElement) {
-  if (!inputElement.validity.valid) {
-    showErrorMessage(formElement, inputElement);
-  } else {
-    hideErrorMessage(formElement, inputElement);
-  }
-}
-
-function hasInvalidInput(inputList) {
-  return inputList.some((inputElement) => !inputElement.validity.valid);
-}
-
-function disableButton(buttonElement) {
-  buttonElement.classList.add(validationConfig.inactiveButtonClass);
-  buttonElement.disabled = true;
-}
-
-function enableButton(buttonElement) {
-  buttonElement.classList.remove(validationConfig.inactiveButtonClass);
-  buttonElement.disabled = false;
-}
-
-function toggleButtonState(inputList, buttonElement) {
-  if (hasInvalidInput(inputList)) {
-    disableButton(buttonElement);
-  } else {
-    enableButton(buttonElement);
-  }
-}
-
-function resetValidation(formElement) {
-  const inputList = Array.from(
-    formElement.querySelectorAll(validationConfig.inputSelector),
-  );
-  const buttonElement = formElement.querySelector(
-    validationConfig.submitButtonSelector,
-  );
-
-  inputList.forEach((inputElement) => {
-    hideErrorMessage(formElement, inputElement);
-  });
-
-  toggleButtonState(inputList, buttonElement);
-}
-
-function setEventListeners(formElement) {
-  const inputList = Array.from(
-    formElement.querySelectorAll(validationConfig.inputSelector),
-  );
-  const buttonElement = formElement.querySelector(
-    validationConfig.submitButtonSelector,
-  );
-
-  toggleButtonState(inputList, buttonElement);
-
-  inputList.forEach((inputElement) => {
-    inputElement.addEventListener("focus", () => {
-      if (!inputElement.validity.valid) {
-        checkInputValidity(formElement, inputElement);
-      }
-    });
-
-    inputElement.addEventListener("input", () => {
-      checkInputValidity(formElement, inputElement);
-      toggleButtonState(inputList, buttonElement);
-    });
-  });
-}
-
-setEventListeners(editForm);
-setEventListeners(addForm);
+setEventListeners(validationConfig);
 
 editButton.addEventListener("click", () => {
   handleOpenEditModal(editPopup);
@@ -202,25 +128,12 @@ function fillProfileForm() {
 
 function handleOpenEditModal(modal) {
   fillProfileForm();
-  resetValidation(editForm);
+  resetValidation(editForm, validationConfig);
   openModal(modal);
 }
 
 function handleProfileFormSubmit(evt) {
   evt.preventDefault();
-
-  if (!editForm.checkValidity()) {
-    const inputList = Array.from(
-      editForm.querySelectorAll(validationConfig.inputSelector),
-    );
-
-    inputList.forEach((inputElement) => {
-      checkInputValidity(editForm, inputElement);
-    });
-
-    toggleButtonState(inputList, editSubmitButton);
-    return;
-  }
 
   profileTitle.textContent = editNameInput.value;
   profileDescription.textContent = editDescriptionInput.value;
@@ -232,7 +145,7 @@ editForm.addEventListener("submit", handleProfileFormSubmit);
 
 addButton.addEventListener("click", () => {
   addForm.reset();
-  resetValidation(addForm);
+  resetValidation(addForm, validationConfig);
   openModal(newCardPopup);
 });
 
@@ -243,19 +156,6 @@ newCardPopupCloseButton.addEventListener("click", () => {
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
 
-  if (!addForm.checkValidity()) {
-    const inputList = Array.from(
-      addForm.querySelectorAll(validationConfig.inputSelector),
-    );
-
-    inputList.forEach((inputElement) => {
-      checkInputValidity(addForm, inputElement);
-    });
-
-    toggleButtonState(inputList, addSubmitButton);
-    return;
-  }
-
   const cardTitle = addNameInput.value.trim();
   const cardLink = addLinkInput.value.trim();
 
@@ -263,7 +163,6 @@ function handleCardFormSubmit(evt) {
 
   closeModal(newCardPopup);
   addForm.reset();
-  resetValidation(addForm);
 }
 
 addForm.addEventListener("submit", handleCardFormSubmit);
@@ -311,7 +210,7 @@ imagePopupCloseButton.addEventListener("click", () => {
 });
 
 popups.forEach((popup) => {
-  popup.addEventListener("click", handleOverlayClick);
+  popup.addEventListener("mousedown", handleOverlayClick);
 });
 
 initialCards.forEach(function (card) {
