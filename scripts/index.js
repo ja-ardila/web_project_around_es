@@ -47,6 +47,7 @@ const editNameInput = editForm.querySelector(".popup__input_type_name");
 const editDescriptionInput = editForm.querySelector(
   ".popup__input_type_description",
 );
+const editSubmitButton = editForm.querySelector(".popup__button");
 
 // Modal para agregar nuevas tarjetas.
 const newCardPopup = document.querySelector("#new-card-popup");
@@ -71,6 +72,98 @@ function closeModal(modal) {
   modal.classList.remove("popup_is-opened");
 }
 
+const validationConfig = {
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inputErrorClass: "popup__input_type_error",
+  inactiveButtonClass: "popup__button_disabled",
+};
+
+function showErrorMessage(formElement, inputElement) {
+  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+
+  inputElement.classList.add(validationConfig.inputErrorClass);
+  errorElement.textContent = inputElement.validationMessage;
+}
+
+function hideErrorMessage(formElement, inputElement) {
+  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+
+  inputElement.classList.remove(validationConfig.inputErrorClass);
+  errorElement.textContent = "";
+}
+
+function checkInputValidity(formElement, inputElement) {
+  if (!inputElement.validity.valid) {
+    showErrorMessage(formElement, inputElement);
+  } else {
+    hideErrorMessage(formElement, inputElement);
+  }
+}
+
+function hasInvalidInput(inputList) {
+  return inputList.some((inputElement) => !inputElement.validity.valid);
+}
+
+function disableButton(buttonElement) {
+  buttonElement.classList.add(validationConfig.inactiveButtonClass);
+  buttonElement.disabled = true;
+}
+
+function enableButton(buttonElement) {
+  buttonElement.classList.remove(validationConfig.inactiveButtonClass);
+  buttonElement.disabled = false;
+}
+
+function toggleButtonState(inputList, buttonElement) {
+  if (hasInvalidInput(inputList)) {
+    disableButton(buttonElement);
+  } else {
+    enableButton(buttonElement);
+  }
+}
+
+function resetValidation(formElement) {
+  const inputList = Array.from(
+    formElement.querySelectorAll(validationConfig.inputSelector),
+  );
+  const buttonElement = formElement.querySelector(
+    validationConfig.submitButtonSelector,
+  );
+
+  inputList.forEach((inputElement) => {
+    hideErrorMessage(formElement, inputElement);
+  });
+
+  toggleButtonState(inputList, buttonElement);
+}
+
+function setEventListeners(formElement) {
+  const inputList = Array.from(
+    formElement.querySelectorAll(validationConfig.inputSelector),
+  );
+  const buttonElement = formElement.querySelector(
+    validationConfig.submitButtonSelector,
+  );
+
+  toggleButtonState(inputList, buttonElement);
+
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener("focus", () => {
+      if (!inputElement.validity.valid) {
+        checkInputValidity(formElement, inputElement);
+      }
+    });
+
+    inputElement.addEventListener("input", () => {
+      checkInputValidity(formElement, inputElement);
+      toggleButtonState(inputList, buttonElement);
+    });
+  });
+}
+
+setEventListeners(editForm);
+
 editButton.addEventListener("click", () => {
   handleOpenEditModal(editPopup);
 });
@@ -85,16 +178,31 @@ function fillProfileForm() {
 }
 
 function handleOpenEditModal(modal) {
-  openModal(modal);
   fillProfileForm();
+  resetValidation(editForm);
+  openModal(modal);
 }
 
 function handleProfileFormSubmit(evt) {
   evt.preventDefault();
-  closeModal(editPopup);
+
+  if (!editForm.checkValidity()) {
+    const inputList = Array.from(
+      editForm.querySelectorAll(validationConfig.inputSelector),
+    );
+
+    inputList.forEach((inputElement) => {
+      checkInputValidity(editForm, inputElement);
+    });
+
+    toggleButtonState(inputList, editSubmitButton);
+    return;
+  }
 
   profileTitle.textContent = editNameInput.value;
   profileDescription.textContent = editDescriptionInput.value;
+
+  closeModal(editPopup);
 }
 
 editForm.addEventListener("submit", handleProfileFormSubmit);

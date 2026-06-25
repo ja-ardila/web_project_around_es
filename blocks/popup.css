@@ -23,12 +23,44 @@
   background: #000;
   border-radius: 2px;
   border: none;
-  margin-top: 48px;
+  margin-top: 10px;
 }
 
 .popup__button:hover {
   background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
+}
+
+.popup__button {
+  box-sizing: border-box;
+}
+
+.popup__button_disabled,
+.popup__button:disabled {
+  background: #fff;
+  color: #cccccc;
+  border: 1px solid #c4c4c4;
+  cursor: default;
+}
+
+.popup__button_disabled:hover,
+.popup__button:disabled:hover {
+  background: #fff;
+  cursor: default;
+}
+
+.popup__input_type_error {
+  border-bottom-color: #ff0000;
+}
+
+.popup__input-error {
+  display: block;
+  min-height: 30px;
+  margin-top: 0;
+  font-size: 12px;
+  line-height: 15px;
+  color: #ff0000;
+  box-sizing: border-box;
 }
 
 .popup__close {
@@ -77,7 +109,7 @@
 }
 
 .popup__input:last-of-type {
-  margin-bottom: 0;
+  margin-bottom: 10px;
 }
 
 .popup__title {
@@ -125,7 +157,7 @@
   .popup__button {
     font-size: 14px;
     line-height: 17px;
-    margin-top: 46px;
+    margin-top: 10px;
     height: 46px;
   }
 
