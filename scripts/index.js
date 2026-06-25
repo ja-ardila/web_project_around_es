@@ -65,12 +65,21 @@ const imagePopupCloseButton = imagePopup.querySelector(".popup__close");
 const popupImage = imagePopup.querySelector(".popup__image");
 const popupCaption = imagePopup.querySelector(".popup__caption");
 
+// Todos los modales
+const popups = document.querySelectorAll(".popup");
+
 function openModal(modal) {
   modal.classList.add("popup_is-opened");
 }
 
 function closeModal(modal) {
   modal.classList.remove("popup_is-opened");
+}
+
+function handleOverlayClick(evt) {
+  if (evt.target === evt.currentTarget) {
+    closeModal(evt.currentTarget);
+  }
 }
 
 const validationConfig = {
@@ -287,6 +296,10 @@ function getCardElement(
 
 imagePopupCloseButton.addEventListener("click", () => {
   closeModal(imagePopup);
+});
+
+popups.forEach((popup) => {
+  popup.addEventListener("click", handleOverlayClick);
 });
 
 initialCards.forEach(function (card) {
