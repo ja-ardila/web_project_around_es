@@ -57,6 +57,7 @@ const newCardPopupCloseButton = newCardPopup.querySelector(".popup__close");
 const addForm = newCardPopup.querySelector(".popup__form");
 const addNameInput = addForm.querySelector(".popup__input_type_card-name");
 const addLinkInput = addForm.querySelector(".popup__input_type_url");
+const addSubmitButton = addForm.querySelector(".popup__button");
 
 // Modal de vista ampliada de imagen.
 const imagePopup = document.querySelector("#image-popup");
@@ -163,6 +164,7 @@ function setEventListeners(formElement) {
 }
 
 setEventListeners(editForm);
+setEventListeners(addForm);
 
 editButton.addEventListener("click", () => {
   handleOpenEditModal(editPopup);
@@ -208,6 +210,8 @@ function handleProfileFormSubmit(evt) {
 editForm.addEventListener("submit", handleProfileFormSubmit);
 
 addButton.addEventListener("click", () => {
+  addForm.reset();
+  resetValidation(addForm);
   openModal(newCardPopup);
 });
 
@@ -218,13 +222,27 @@ newCardPopupCloseButton.addEventListener("click", () => {
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
 
-  const cardTitle = addNameInput.value.trim() || undefined;
-  const cardLink = addLinkInput.value.trim() || undefined;
+  if (!addForm.checkValidity()) {
+    const inputList = Array.from(
+      addForm.querySelectorAll(validationConfig.inputSelector),
+    );
+
+    inputList.forEach((inputElement) => {
+      checkInputValidity(addForm, inputElement);
+    });
+
+    toggleButtonState(inputList, addSubmitButton);
+    return;
+  }
+
+  const cardTitle = addNameInput.value.trim();
+  const cardLink = addLinkInput.value.trim();
 
   renderCard(cardTitle, cardLink, cardContainer);
 
   closeModal(newCardPopup);
-  evt.target.reset();
+  addForm.reset();
+  resetValidation(addForm);
 }
 
 addForm.addEventListener("submit", handleCardFormSubmit);
