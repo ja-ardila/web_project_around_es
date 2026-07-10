@@ -61,6 +61,11 @@
   line-height: 15px;
   color: #ff0000;
   box-sizing: border-box;
+  visibility: hidden;
+}
+
+.popup__input-error_active {
+  visibility: visible;
 }
 
 .popup__close {
