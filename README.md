@@ -187,16 +187,11 @@ Se encarga de:
 Para compilar los archivos TypeScript, ejecuta:
 
 ```bash
-npx tsc
+tsc
 ```
 
 Los archivos JavaScript generados se almacenan en la carpeta `public`.
 
-También puedes comprobar que no existan errores de TypeScript sin generar archivos ejecutando:
-
-```bash
-npx tsc --noEmit
-```
 
 ## Uso
 
